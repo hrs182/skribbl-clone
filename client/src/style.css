@@ -1,0 +1,1173 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Outfit:wght@400;600;700;800;900&display=swap');
+
+/* =========================================================================
+   SKRIBBL.IO AUTHENTIC DESIGN SYSTEM & THEME
+   ========================================================================= */
+
+:root {
+  --skribbl-blue: #184e9c;
+  --skribbl-blue-dark: #0e346f;
+  --skribbl-blue-panel: #0d3b80;
+  --skribbl-blue-deep: #082654;
+  --skribbl-green: #43b52d;
+  --skribbl-green-dark: #288017;
+  --skribbl-btn-blue: #2c69c5;
+  --skribbl-btn-blue-dark: #1b4b96;
+  --skribbl-border-black: #000000;
+  --font-comic: 'Fredoka One', 'Outfit', cursive, sans-serif;
+  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--skribbl-blue);
+  /* Seamless doodle wallpaper pattern matching Screenshots 1-4 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' opacity='0.12'%3E%3Cpath d='M20 25 C20 15, 35 15, 35 25 C35 32, 27 38, 27 42 M27 47 L27.01 47'/%3E%3Ccircle cx='85' cy='30' r='12'/%3E%3Cpath d='M85 42 L85 58 M80 54 L90 54'/%3E%3Cpolygon points='15,85 22,70 30,78 38,65 45,85'/%3E%3Cpath d='M80 85 L70 95 L100 95 L90 85 Z'/%3E%3Ccircle cx='85' cy='95' r='3' fill='%23ffffff'/%3E%3Ccircle cx='75' cy='95' r='3' fill='%23ffffff'/%3E%3Cpath d='M45 15 L55 25 M55 15 L45 25'/%3E%3Crect x='10' y='100' width='16' height='12' rx='2'/%3E%3Cpath d='M100 15 C105 10, 115 15, 110 22 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  color: #000000;
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* General Layout Primitives */
+.skribbl-app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.2s ease forwards;
+}
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.animate-bounce-short {
+  animation: bounceShort 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes bounceShort {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Error Toast Banner */
+.error-toast-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #dc2626;
+  border: 2px solid #000000;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 9999;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* =========================================================================
+   SKRIBBL LOGO & HOME PAGE (Screenshot 1)
+   ========================================================================= */
+.skribbl-home-page-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.skribbl-home-center-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 460px;
+  width: 100%;
+}
+
+/* The Official skribbl.io! Animated Logo */
+.skribbl-logo-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.skribbl-official-logo-img {
+  max-width: 440px;
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s ease;
+}
+.skribbl-official-logo-img:hover {
+  transform: scale(1.02);
+}
+
+.skribbl-logo-compact-img {
+  max-height: 38px;
+  width: auto;
+  display: block;
+}
+
+
+/* Authentic Skribbl Center Box (Screenshot 1) */
+.skribbl-authentic-box {
+  background: var(--skribbl-blue-panel);
+  border: 4px solid var(--skribbl-blue-deep);
+  border-radius: 12px;
+  padding: 16px;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Top Inputs: Name Field & Language Dropdown */
+.skribbl-top-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.skribbl-name-field {
+  flex: 1;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: var(--font-main);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #000000;
+  outline: none;
+}
+.skribbl-name-field:focus {
+  border-color: #3b82f6;
+}
+
+.skribbl-lang-select {
+  width: 130px;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #000000;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Avatar Viewport Stage (Screenshot 1) */
+.skribbl-avatar-stage {
+  background: var(--skribbl-blue-deep);
+  border: 2px solid rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  height: 185px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  position: relative;
+}
+
+.skribbl-dice-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: transform 0.15s;
+}
+.skribbl-dice-btn:hover {
+  transform: rotate(35deg) scale(1.15);
+}
+
+.skribbl-arrows-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+  padding: 10px 0;
+  z-index: 2;
+}
+
+.skribbl-arrow-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.1s, color 0.1s;
+}
+.skribbl-arrow-btn:hover {
+  color: #facc15;
+  transform: scale(1.3);
+}
+
+.skribbl-avatar-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+/* Green "Play!" and Blue "Create Private Room" buttons */
+.skribbl-main-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skribbl-play-green-btn {
+  width: 100%;
+  height: 52px;
+  background: var(--skribbl-green);
+  border: 2px solid var(--skribbl-green-dark);
+  border-bottom: 5px solid var(--skribbl-green-dark);
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: var(--font-comic);
+  font-size: 1.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.08s, border-bottom 0.08s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.skribbl-play-green-btn:hover {
+  background: #4cd333;
+}
+.skribbl-play-green-btn:active {
+  transform: translateY(3px);
+  border-bottom: 2px solid var(--skribbl-green-dark);
+}
+
+.skribbl-private-blue-btn {
+  width: 100%;
+  height: 44px;
+  background: var(--skribbl-btn-blue);
+  border: 2px solid var(--skribbl-btn-blue-dark);
+  border-bottom: 4px solid var(--skribbl-btn-blue-dark);
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: var(--font-main);
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.08s, border-bottom 0.08s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.skribbl-private-blue-btn:hover {
+  background: #3979db;
+}
+.skribbl-private-blue-btn:active {
+  transform: translateY(2px);
+  border-bottom: 2px solid var(--skribbl-btn-blue-dark);
+}
+
+/* Join Code form in footer */
+.skribbl-extra-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skribbl-join-code-form {
+  display: flex;
+  gap: 8px;
+}
+
+.skribbl-code-input {
+  flex: 1;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-family: var(--font-comic);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.skribbl-code-submit {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 6px 16px;
+  font-family: var(--font-comic);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.skribbl-code-submit:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+.skribbl-code-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.skribbl-public-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #93c5fd;
+  justify-content: center;
+}
+
+/* =========================================================================
+   AUTHENTIC WHITE HEADER NAVBAR (Screenshots 2 & 3)
+   ========================================================================= */
+.skribbl-navbar-white {
+  height: 52px;
+  background: #ffffff;
+  border-bottom: 3px solid #000000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-left-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skribbl-alarm-clock {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clock-time-number {
+  position: absolute;
+  top: 9px;
+  font-family: var(--font-comic);
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: #000000;
+}
+
+.skribbl-round-text {
+  font-family: var(--font-comic);
+  font-size: 1.1rem;
+  color: #000000;
+}
+
+/* Center Content in Navbar: WAITING or GUESS THIS */
+.navbar-center-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.skribbl-header-waiting {
+  font-family: var(--font-comic);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #000000;
+}
+
+.skribbl-header-choosing {
+  font-family: var(--font-comic);
+  font-size: 1.05rem;
+  color: #2563eb;
+  letter-spacing: 0.05em;
+}
+
+.skribbl-header-drawing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.skribbl-draw-label {
+  font-family: var(--font-comic);
+  font-size: 0.85rem;
+  color: #475569;
+}
+.skribbl-draw-word {
+  font-family: var(--font-comic);
+  font-size: 1.25rem;
+  color: #16a34a;
+  letter-spacing: 0.05em;
+}
+
+/* Guesser View (Screenshot 3): GUESS THIS \n 4 \n _ _ _ _ */
+.skribbl-header-guess {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.skribbl-guess-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+.guess-title {
+  font-family: var(--font-comic);
+  font-size: 0.78rem;
+  color: #000000;
+  letter-spacing: 0.08em;
+}
+.guess-len {
+  font-family: var(--font-comic);
+  font-size: 0.78rem;
+  color: #000000;
+}
+.skribbl-guess-blanks {
+  font-family: var(--font-comic);
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  color: #000000;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* Right Navbar Group: Settings Gear & Exit */
+.navbar-right-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.skribbl-gear-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+.skribbl-gear-btn:hover {
+  transform: rotate(45deg);
+}
+
+.skribbl-exit-btn {
+  background: #fee2e2;
+  border: 1.5px solid #ef4444;
+  border-radius: 6px;
+  color: #b91c1c;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.skribbl-exit-btn:hover {
+  background: #fecaca;
+}
+
+/* =========================================================================
+   UNIFIED 3-COLUMN LAYOUT (Screenshots 2 & 3)
+   ========================================================================= */
+.skribbl-ingame-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.skribbl-unified-layout-grid {
+  display: grid;
+  grid-template-columns: 210px 1fr 290px;
+  gap: 12px;
+  padding: 12px;
+  height: calc(100vh - 52px);
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .skribbl-unified-layout-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+/* LEFT COLUMN: Player Cards List (Screenshot 2 & 3) */
+.skribbl-col-left {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.skribbl-playerlist-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.skribbl-player-card,
+.skribbl-ingame-player-row {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+.skribbl-ingame-player-row.guessed-row {
+  background: #dcfce7;
+  border-color: #16a34a;
+}
+.skribbl-ingame-player-row.self-row {
+  border-color: #2563eb;
+}
+
+.card-rank-col, .ingame-rank-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24px;
+}
+.rank-num, .ingame-rank-text {
+  font-family: var(--font-comic);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #000000;
+}
+.rank-crown {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.card-info-col, .ingame-info-col {
+  flex: 1;
+  min-width: 0;
+}
+.card-player-name, .ingame-name-text {
+  font-family: var(--font-comic);
+  font-size: 0.9rem;
+  color: #2563eb;
+  font-weight: 700;
+}
+.card-player-points, .ingame-points-text {
+  font-size: 0.75rem;
+  color: #000000;
+  font-weight: 600;
+}
+
+.card-avatar-col, .ingame-avatar-col {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ingame-pencil-icon {
+  font-size: 1.1rem;
+  animation: bounceShort 0.8s infinite;
+}
+
+.ingame-kick-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px;
+}
+.ingame-kick-btn:hover {
+  color: #ef4444;
+}
+
+/* =========================================================================
+   CENTER COLUMN: LOBBY SETTINGS TABLE (Screenshot 2)
+   ========================================================================= */
+.skribbl-lobby-layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.skribbl-settings-column {
+  background: var(--skribbl-blue-panel);
+  border: 3px solid var(--skribbl-blue-deep);
+  border-radius: 8px;
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.skribbl-settings-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.settings-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.skribbl-select {
+  width: 130px;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: var(--font-comic);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #000000;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Custom Words Box (Screenshot 2) */
+.skribbl-custom-words-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.custom-words-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-words-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.skribbl-textarea {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 0.85rem;
+  color: #000000;
+  resize: vertical;
+  outline: none;
+}
+
+.skribbl-lobby-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.skribbl-invite-link-btn {
+  flex: 1;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 10px;
+  font-family: var(--font-comic);
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.skribbl-invite-link-btn:hover {
+  background: #f1f5f9;
+}
+
+.skribbl-start-green-btn {
+  flex: 1.2;
+  background: var(--skribbl-green);
+  border: 2px solid var(--skribbl-green-dark);
+  border-bottom: 4px solid var(--skribbl-green-dark);
+  border-radius: 4px;
+  color: #ffffff;
+  font-family: var(--font-comic);
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.skribbl-start-green-btn:hover:not(:disabled) {
+  background: #4cd333;
+}
+.skribbl-start-green-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.skribbl-guest-notice {
+  flex: 1.2;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  padding: 10px;
+}
+
+/* =========================================================================
+   CENTER COLUMN: ACTIVE CANVAS BOARD (Screenshot 3)
+   ========================================================================= */
+.skribbl-col-center {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.skribbl-canvas-outer-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.skribbl-canvas-viewport {
+  flex: 1;
+  background: #ffffff;
+  position: relative;
+  min-height: 380px;
+}
+
+.skribbl-canvas-viewport canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Reaction Buttons in Top Right of Canvas (Screenshot 3: 👍 👎) */
+.skribbl-reactions-overlay {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.reaction-thumb-btn {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #000000;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  transition: transform 0.1s;
+}
+.reaction-thumb-btn:hover {
+  transform: scale(1.15);
+}
+.reaction-thumb-btn:active {
+  transform: scale(0.95);
+}
+
+/* Bottom Drawing Toolbar for Drawer */
+.skribbl-bottom-drawing-bar {
+  background: #e2e8f0;
+  border-top: 2px solid #000000;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.skribbl-active-color-box {
+  width: 44px;
+  height: 44px;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
+}
+
+.skribbl-brush-sizes-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skribbl-brush-size-btn {
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.skribbl-brush-size-btn.active {
+  background: #cbd5e1;
+  border-width: 3px;
+}
+.size-dot-inner {
+  background: #000000;
+  border-radius: 50%;
+  display: block;
+}
+
+/* 2-Row Palette Grid */
+.skribbl-palette-grid-2rows {
+  display: grid;
+  grid-template-columns: repeat(11, 20px);
+  grid-template-rows: repeat(2, 20px);
+  gap: 3px;
+}
+
+.skribbl-color-swatch {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000000;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.skribbl-color-swatch:hover {
+  transform: scale(1.2);
+  z-index: 2;
+}
+.skribbl-color-swatch.active {
+  transform: scale(1.15);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 3px #000000;
+}
+
+.skribbl-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skribbl-tool-icon-btn {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.skribbl-tool-icon-btn.active {
+  background: #facc15;
+}
+.skribbl-tool-icon-btn.clear-danger:hover {
+  background: #fee2e2;
+}
+
+/* =========================================================================
+   RIGHT COLUMN: CHAT BOX (Screenshots 2 & 3)
+   ========================================================================= */
+.skribbl-col-right {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.skribbl-chatbox-card {
+  height: 100%;
+  background: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.skribbl-chat-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-main);
+  font-size: 0.88rem;
+}
+
+.skribbl-chat-line {
+  padding: 4px 6px;
+  word-break: break-word;
+}
+.skribbl-chat-line.bg-even {
+  background: #f1f5f9;
+}
+
+.chat-user-label {
+  font-family: var(--font-comic);
+  color: #000000;
+}
+
+/* System Notifications matching Screenshot 2 & 3 */
+.chat-line-blue {
+  color: #2563eb;
+  font-weight: 700;
+}
+.chat-line-orange {
+  color: #ea580c;
+  font-weight: 700;
+}
+.chat-line-correct {
+  color: #16a34a;
+  font-weight: 800;
+}
+.chat-line-close {
+  color: #ca8a04;
+  font-weight: 700;
+}
+
+.skribbl-chat-form {
+  border-top: 2px solid #000000;
+  padding: 6px;
+  background: #f8fafc;
+}
+
+.skribbl-chat-input {
+  width: 100%;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 3px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  font-family: var(--font-main);
+  outline: none;
+}
+.skribbl-chat-input:focus {
+  border-color: #2563eb;
+}
+
+/* =========================================================================
+   SETTINGS MODAL (Screenshot 4)
+   ========================================================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+
+.skribbl-settings-modal {
+  background: #184e9c;
+  border: 4px solid #0d346e;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 460px;
+  padding: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-modal-title {
+  font-family: var(--font-comic);
+  font-size: 1.5rem;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.settings-modal-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.skribbl-slider-blue {
+  width: 100%;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
+.settings-hotkeys-section, .settings-misc-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 12px;
+}
+
+.hotkeys-reset-btn {
+  background: #2563eb;
+  border: 1px solid #1d4ed8;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.hotkeys-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.hotkey-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.hotkey-label {
+  font-size: 0.75rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+.hotkey-input {
+  width: 100%;
+  text-align: center;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 4px 0;
+  outline: none;
+}
+
+.misc-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.misc-label {
+  font-size: 0.8rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+.skribbl-select-white {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  outline: none;
+}
