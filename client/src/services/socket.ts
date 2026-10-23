@@ -1,4 +1,3 @@
-```typescript
 import { io, Socket } from 'socket.io-client';
 
 const URL =
@@ -14,4 +13,3 @@ export const socket: Socket = io(URL, {
   reconnectionDelay: 1000,
   transports: ['websocket', 'polling'],
 });
-```
