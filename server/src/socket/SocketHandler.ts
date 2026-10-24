@@ -17,6 +17,82 @@ export class SocketHandler {
   private init(): void {
     this.io.on('connection', (socket: Socket) => {
       // 1. Room & Lobby Handlers
+      socket.on('play_public', (data: { playerName: string; avatar?: any }) => {
+        try {
+          this.roomManager.unregisterPlayer(socket.id);
+
+          const player = new Player(socket.id, data.playerName || 'Player', data.avatar, false);
+          const { room, isNew } = this.roomManager.findOrCreatePublicRoom(player, 6);
+
+          if (isNew) {
+            player.isHost = true;
+            socket.join(room.id);
+            this.attachGameEventListeners(room);
+
+            socket.emit('room_created', {
+              roomId: room.id,
+              player: player.toJSON(),
+              players: room.getPlayers().map(p => p.toJSON()),
+              settings: room.game.settings,
+            });
+          } else {
+            room.addPlayer(player);
+            this.roomManager.registerPlayerToRoom(socket.id, room.id);
+            socket.join(room.id);
+
+            // If game is in progress, append to turn order so player participates in rotation
+            if (room.game.phase !== 'LOBBY') {
+              if (!room.game.turnOrder.includes(player.id)) {
+                room.game.turnOrder.push(player.id);
+              }
+            }
+
+            // Broadcast to existing room players
+            socket.to(room.id).emit('player_joined', {
+              player: player.toJSON(),
+              players: room.getPlayers().map(p => p.toJSON()),
+            });
+
+            // Send full game state to joining player
+            const isDrawer = room.game.currentDrawerId === player.id;
+            socket.emit('joined_successfully', {
+              roomId: room.id,
+              player: player.toJSON(),
+              players: room.getPlayers().map(p => p.toJSON()),
+              settings: room.game.settings,
+              phase: room.game.phase,
+              round: room.game.currentRound,
+              totalRounds: room.game.totalRounds,
+              drawerId: room.game.currentDrawerId,
+              word: isDrawer ? room.game.currentWord : undefined,
+              hint: room.game.currentHintMask,
+              timeLeft: room.game.timeLeft,
+              strokes: room.game.strokes,
+              chatHistory: room.chatHistory,
+            });
+
+            // System message in chat
+            const joinMsg: ChatMessage = {
+              id: `sys_${Date.now()}_${Math.random()}`,
+              text: `${player.name} joined the room!`,
+              type: 'join',
+              timestamp: Date.now(),
+            };
+            room.addChatMessage(joinMsg);
+            this.io.to(room.id).emit('chat_message', joinMsg);
+
+            // In public rooms, auto-start if in LOBBY and >= 2 players
+            if (room.game.phase === 'LOBBY' && room.getPlayers().length >= 2) {
+              this.checkAndStartPublicLobby(room);
+            }
+          }
+
+          this.broadcastPublicRooms();
+        } catch (err: any) {
+          socket.emit('error_message', { message: err.message || 'Failed to match public room' });
+        }
+      });
+
       socket.on('create_room', (data: { hostName: string; settings?: Partial<RoomSettings>; avatar?: any }) => {
         try {
           const hostPlayer = new Player(socket.id, data.hostName || 'Host', data.avatar, true);
@@ -61,6 +137,13 @@ export class SocketHandler {
 
           socket.join(room.id);
 
+          // If game is in progress, append to turn order
+          if (room.game.phase !== 'LOBBY') {
+            if (!room.game.turnOrder.includes(player.id)) {
+              room.game.turnOrder.push(player.id);
+            }
+          }
+
           // Broadcast to existing room players
           socket.to(room.id).emit('player_joined', {
             player: player.toJSON(),
@@ -94,6 +177,11 @@ export class SocketHandler {
           };
           room.addChatMessage(joinMsg);
           this.io.to(room.id).emit('chat_message', joinMsg);
+
+          // If in public room and in LOBBY with >= 2 players, auto-start
+          if (!room.game.settings.isPrivate && room.game.phase === 'LOBBY' && room.getPlayers().length >= 2) {
+            this.checkAndStartPublicLobby(room);
+          }
 
           this.broadcastPublicRooms();
         } catch (err: any) {
@@ -492,6 +580,30 @@ export class SocketHandler {
     }, 5000);
   }
 
+  private checkAndStartPublicLobby(room: Room): void {
+    if (room.game.phase !== 'LOBBY' || room.game.settings.isPrivate) return;
+    const players = room.getPlayers();
+    if (players.length < 2) return;
+
+    this.io.to(room.id).emit('chat_message', {
+      id: `sys_start_${Date.now()}`,
+      text: 'Enough players joined! Match starting in 3 seconds...',
+      type: 'system',
+      timestamp: Date.now(),
+    });
+
+    setTimeout(() => {
+      if (room.isEmpty() || room.game.phase !== 'LOBBY') return;
+      const currentPlayers = room.getPlayers();
+      if (currentPlayers.length >= 2) {
+        const started = room.game.startGame(currentPlayers);
+        if (started) {
+          this.startNextTurn(room);
+        }
+      }
+    }, 3000);
+  }
+
   private handleGameOver(room: Room): void {
     room.game.phase = 'GAME_OVER';
     const leaderboard = room.game.getLeaderboard(room.getPlayers()).map(p => p.toJSON());
@@ -501,6 +613,33 @@ export class SocketHandler {
       winner,
       leaderboard,
     });
+
+    // For public matchmaking rooms, auto-restart next match after podium celebration
+    if (!room.game.settings.isPrivate) {
+      setTimeout(() => {
+        if (room.isEmpty()) return;
+        const players = room.getPlayers();
+        if (players.length >= 2) {
+          const started = room.game.startGame(players);
+          if (started) {
+            this.startNextTurn(room);
+            this.io.to(room.id).emit('chat_message', {
+              id: `sys_${Date.now()}`,
+              text: '🎮 A new match has started! Good luck!',
+              type: 'system',
+              timestamp: Date.now(),
+            });
+          }
+        } else {
+          room.game.resetGame();
+          this.io.to(room.id).emit('game_reset_lobby', {
+            message: 'Waiting for players to begin next match...',
+            players: room.getPlayers().map(p => p.toJSON()),
+          });
+        }
+        this.broadcastPublicRooms();
+      }, 8000);
+    }
   }
 
   private broadcastPublicRooms(): void {

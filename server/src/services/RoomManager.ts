@@ -70,6 +70,30 @@ export class RoomManager {
     return { room, wasHost, newHostId };
   }
 
+  public findOrCreatePublicRoom(hostPlayer: Player, maxPlayers: number = 6): { room: Room; isNew: boolean } {
+    // Search for an existing public room that has space and is not GAME_OVER
+    for (const room of this.rooms.values()) {
+      if (!room.game.settings.isPrivate && room.players.size < room.game.settings.maxPlayers && room.game.phase !== 'GAME_OVER') {
+        return { room, isNew: false };
+      }
+    }
+
+    // No available room found, create a new public room
+    const roomId = this.generateRoomId();
+    const room = new Room(roomId, hostPlayer, {
+      maxPlayers,
+      rounds: 3,
+      drawTime: 80,
+      wordCount: 3,
+      hintsCount: 2,
+      wordMode: 'normal',
+      isPrivate: false,
+    });
+    this.rooms.set(roomId, room);
+    this.socketRoomMap.set(hostPlayer.id, roomId);
+    return { room, isNew: true };
+  }
+
   public getPublicRooms(): PublicRoomInfo[] {
     const list: PublicRoomInfo[] = [];
     for (const room of this.rooms.values()) {

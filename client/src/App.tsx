@@ -74,6 +74,7 @@ export const App: React.FC = () => {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [mobileTab, setMobileTab] = useState<'chat' | 'players'>('chat');
 
   // Save profile
   useEffect(() => {
@@ -283,11 +284,20 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  const handleCreateRoom = (isPrivate: boolean) => {
+  const handlePlayPublic = () => {
+    soundManager.playPop();
+    socket.emit('play_public', {
+      playerName,
+      avatar: avatarConfig,
+    });
+  };
+
+  const handleCreatePrivateRoom = () => {
+    soundManager.playPop();
     socket.emit('create_room', {
       hostName: playerName,
       avatar: avatarConfig,
-      settings: { ...settings, isPrivate },
+      settings: { ...settings, isPrivate: true },
     });
   };
 
@@ -352,7 +362,8 @@ export const App: React.FC = () => {
           avatarConfig={avatarConfig}
           onPlayerNameChange={setPlayerName}
           onAvatarConfigChange={setAvatarConfig}
-          onCreateRoom={handleCreateRoom}
+          onPlayPublic={handlePlayPublic}
+          onCreatePrivateRoom={handleCreatePrivateRoom}
           onJoinRoom={handleJoinRoom}
         />
       ) : (
@@ -371,10 +382,28 @@ export const App: React.FC = () => {
             onLeaveRoom={handleLeaveRoom}
           />
 
-          {/* 3-Column Layout matching Screenshots 2 & 3 */}
+          {/* Mobile Switcher Bar (Visible only on screens <= 850px) */}
+          <div className="skribbl-mobile-nav-tabs">
+            <button
+              type="button"
+              className={`mobile-tab-btn ${mobileTab === 'chat' ? 'active' : ''}`}
+              onClick={() => setMobileTab('chat')}
+            >
+              💬 Chat & Guesses
+            </button>
+            <button
+              type="button"
+              className={`mobile-tab-btn ${mobileTab === 'players' ? 'active' : ''}`}
+              onClick={() => setMobileTab('players')}
+            >
+              👥 Players ({players.length})
+            </button>
+          </div>
+
+          {/* 3-Column Layout matching Screenshots 2 & 3, adapts on mobile */}
           <div className="skribbl-unified-layout-grid">
             {/* Left Column: Player Cards */}
-            <div className="skribbl-col-left">
+            <div className={`skribbl-col-left ${mobileTab === 'players' ? 'mobile-visible' : 'mobile-hidden'}`}>
               <PlayerList
                 players={players}
                 currentUserId={currentUserId}
@@ -407,7 +436,7 @@ export const App: React.FC = () => {
             </div>
 
             {/* Right Column: Chat Box */}
-            <div className="skribbl-col-right">
+            <div className={`skribbl-col-right ${mobileTab === 'chat' ? 'mobile-visible' : 'mobile-hidden'}`}>
               <ChatBox
                 messages={chatMessages}
                 isDrawer={isDrawer}

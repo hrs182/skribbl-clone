@@ -9,7 +9,8 @@ interface HomeViewProps {
   avatarConfig: AvatarConfig;
   onPlayerNameChange: (name: string) => void;
   onAvatarConfigChange: (config: AvatarConfig) => void;
-  onCreateRoom: (isPrivate: boolean) => void;
+  onPlayPublic: () => void;
+  onCreatePrivateRoom: () => void;
   onJoinRoom: (roomId: string) => void;
 }
 
@@ -18,7 +19,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   avatarConfig,
   onPlayerNameChange,
   onAvatarConfigChange,
-  onCreateRoom,
+  onPlayPublic,
+  onCreatePrivateRoom,
   onJoinRoom,
 }) => {
   const [publicRooms, setPublicRooms] = useState<PublicRoomInfo[]>([]);
@@ -45,8 +47,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           avatarConfig={avatarConfig}
           onPlayerNameChange={onPlayerNameChange}
           onAvatarConfigChange={onAvatarConfigChange}
-          onPlayPublic={() => onCreateRoom(false)}
-          onCreatePrivateRoom={() => onCreateRoom(true)}
+          onPlayPublic={onPlayPublic}
+          onCreatePrivateRoom={onCreatePrivateRoom}
           onJoinRoom={onJoinRoom}
           publicRooms={publicRooms}
         />

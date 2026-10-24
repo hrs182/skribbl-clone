@@ -3,6 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { SocketHandler } from './socket/SocketHandler.js';
 
@@ -32,19 +33,29 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Production static serving
-const clientDistPath = path.join(__dirname, '../../client/dist');
+// Robust client dist path detection for Render production
+let clientDistPath = path.resolve(process.cwd(), 'client/dist');
+if (!fs.existsSync(clientDistPath)) {
+  clientDistPath = path.resolve(__dirname, '../../client/dist');
+}
+if (!fs.existsSync(clientDistPath)) {
+  clientDistPath = path.resolve(__dirname, '../client/dist');
+}
+
+console.log(`📦 Serving frontend from: ${clientDistPath} (exists: ${fs.existsSync(clientDistPath)})`);
+
 app.use(express.static(clientDistPath));
 
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
     return next();
   }
-  res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
-    if (err) {
-      res.status(200).send('Skribbl.io Server is running! Connect client at dev port 5173 or build client.');
-    }
-  });
+  const indexPath = path.join(clientDistPath, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(200).send('Skribbl.io Server is running! Connect client at dev port 5173 or build client.');
+  }
 });
 
 // Setup Socket.IO
