@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { StrokeData } from '../types';
 import { socket } from '../services/socket';
 import { soundManager } from '../services/sound';
+import { HotkeyConfig, getHotkeys } from '../services/hotkeys';
 import {
   Paintbrush,
   Eraser,
@@ -9,6 +10,7 @@ import {
   RotateCcw,
   Trash2,
   Download,
+  ArrowLeftRight,
 } from 'lucide-react';
 
 interface CanvasBoardProps {
@@ -38,8 +40,10 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
 
   const [tool, setTool] = useState<'pen' | 'eraser' | 'fill'>('pen');
   const [currentColor, setCurrentColor] = useState<string>('#000000');
+  const [previousColor, setPreviousColor] = useState<string>('#ffffff');
   const [currentSize, setCurrentSize] = useState<number>(10);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  const [hotkeys, setHotkeys] = useState<HotkeyConfig>(getHotkeys);
 
   const activeRemoteStrokeRef = useRef<{
     tool: 'pen' | 'eraser' | 'fill';
@@ -417,7 +421,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
     socket.emit('draw_end', {});
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     if (!isDrawer) return;
     soundManager.playPop();
     const canvas = canvasRef.current;
@@ -428,13 +432,125 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     socket.emit('canvas_clear', {});
-  };
+  }, [isDrawer]);
 
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     if (!isDrawer) return;
     soundManager.playPop();
     socket.emit('draw_undo', {});
+  }, [isDrawer]);
+
+  const handleSwap = useCallback(() => {
+    soundManager.playPop();
+    setCurrentColor(curr => {
+      setPreviousColor(curr);
+      return previousColor;
+    });
+    if (tool === 'eraser') {
+      setTool('pen');
+    }
+  }, [previousColor, tool]);
+
+  const handleColorSelect = (c: string) => {
+    soundManager.playPop();
+    if (c !== currentColor) {
+      setPreviousColor(currentColor);
+      setCurrentColor(c);
+    }
+    if (tool === 'eraser') setTool('pen');
   };
+
+  // Listen for hotkeys configuration changes
+  useEffect(() => {
+    const handleHotkeysChanged = (e: any) => {
+      if (e.detail) {
+        setHotkeys(e.detail);
+      } else {
+        setHotkeys(getHotkeys());
+      }
+    };
+    window.addEventListener('skribbl_hotkeys_changed', handleHotkeysChanged);
+    return () => {
+      window.removeEventListener('skribbl_hotkeys_changed', handleHotkeysChanged);
+    };
+  }, []);
+
+  // Hotkey keyboard event handler
+  useEffect(() => {
+    if (!isDrawer) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      if (activeEl) {
+        const tag = activeEl.tagName.toLowerCase();
+        if (
+          tag === 'input' ||
+          tag === 'textarea' ||
+          tag === 'select' ||
+          (activeEl as HTMLElement).isContentEditable
+        ) {
+          return;
+        }
+      }
+
+      // Check if any modal is currently visible
+      if (document.querySelector('.modal-backdrop')) {
+        return;
+      }
+
+      // Standard Ctrl+Z or Cmd+Z for undo
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        handleUndo();
+        return;
+      }
+
+      // Ignore when modifier keys are held
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      let key = e.key.toUpperCase();
+      if (key === ' ') key = 'SPACE';
+
+      if (key === hotkeys.brush) {
+        e.preventDefault();
+        soundManager.playPop();
+        setTool('pen');
+      } else if (key === hotkeys.fill) {
+        e.preventDefault();
+        soundManager.playPop();
+        setTool('fill');
+      } else if (key === hotkeys.undo) {
+        e.preventDefault();
+        handleUndo();
+      } else if (key === hotkeys.clear) {
+        e.preventDefault();
+        handleClear();
+      } else if (key === hotkeys.swap) {
+        e.preventDefault();
+        handleSwap();
+      } else if (key === 'E') {
+        // Eraser quick-key if E isn't bound to something else
+        if (![hotkeys.brush, hotkeys.fill, hotkeys.undo, hotkeys.clear, hotkeys.swap].includes('E')) {
+          e.preventDefault();
+          soundManager.playPop();
+          setTool('eraser');
+        }
+      } else if (['1', '2', '3', '4'].includes(key)) {
+        // Quick brush size selection via 1-4
+        const idx = parseInt(key, 10) - 1;
+        if (SKRIBBL_BRUSH_SIZES[idx]) {
+          e.preventDefault();
+          soundManager.playPop();
+          setCurrentSize(SKRIBBL_BRUSH_SIZES[idx]);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isDrawer, hotkeys, handleUndo, handleClear, handleSwap]);
 
   const handleDownload = () => {
     soundManager.playPop();
@@ -499,15 +615,28 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
       {/* Classic Skribbl Drawer Bottom Bar (when drawing) */}
       {isDrawer && (
         <div className="skribbl-bottom-drawing-bar">
-          {/* Color Preview Box */}
-          <div
-            className="skribbl-active-color-box"
-            style={{ backgroundColor: tool === 'eraser' ? '#ffffff' : currentColor }}
-          />
+          {/* Color Preview & Swap Control */}
+          <div className="flex items-center gap-1">
+            <div
+              className="skribbl-active-color-box cursor-pointer"
+              style={{ backgroundColor: tool === 'eraser' ? '#ffffff' : currentColor }}
+              onClick={handleSwap}
+              title={`Active color. Click or press [${hotkeys.swap}] to swap with previous color (${previousColor})`}
+            />
+            <button
+              type="button"
+              className="skribbl-tool-icon-btn p-1"
+              style={{ width: '28px', height: '28px' }}
+              onClick={handleSwap}
+              title={`Swap colors [${hotkeys.swap}]`}
+            >
+              <ArrowLeftRight size={14} />
+            </button>
+          </div>
 
           {/* 4 Brush Sizes */}
           <div className="skribbl-brush-sizes-row">
-            {SKRIBBL_BRUSH_SIZES.map(sz => (
+            {SKRIBBL_BRUSH_SIZES.map((sz, idx) => (
               <button
                 key={sz}
                 type="button"
@@ -516,6 +645,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
                   soundManager.playPop();
                   setCurrentSize(sz);
                 }}
+                title={`Brush size ${sz}px [${idx + 1}]`}
               >
                 <span
                   className="size-dot-inner"
@@ -533,11 +663,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
                 type="button"
                 className={`skribbl-color-swatch ${currentColor === c && tool !== 'eraser' ? 'active' : ''}`}
                 style={{ backgroundColor: c }}
-                onClick={() => {
-                  soundManager.playPop();
-                  setCurrentColor(c);
-                  if (tool === 'eraser') setTool('pen');
-                }}
+                onClick={() => handleColorSelect(c)}
               />
             ))}
           </div>
@@ -551,7 +677,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
                 soundManager.playPop();
                 setTool('pen');
               }}
-              title="Pen"
+              title={`Pen [${hotkeys.brush}]`}
             >
               <Paintbrush size={18} />
             </button>
@@ -563,7 +689,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
                 soundManager.playPop();
                 setTool('fill');
               }}
-              title="Bucket Fill"
+              title={`Bucket Fill [${hotkeys.fill}]`}
             >
               <PaintBucket size={18} />
             </button>
@@ -575,7 +701,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
                 soundManager.playPop();
                 setTool('eraser');
               }}
-              title="Eraser"
+              title="Eraser [E]"
             >
               <Eraser size={18} />
             </button>
@@ -584,7 +710,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
               type="button"
               className="skribbl-tool-icon-btn"
               onClick={handleUndo}
-              title="Undo"
+              title={`Undo [${hotkeys.undo} / Ctrl+Z]`}
             >
               <RotateCcw size={18} />
             </button>
@@ -593,7 +719,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
               type="button"
               className="skribbl-tool-icon-btn clear-danger"
               onClick={handleClear}
-              title="Clear Canvas"
+              title={`Clear Canvas [${hotkeys.clear}]`}
             >
               <Trash2 size={18} />
             </button>
