@@ -219,12 +219,7 @@ The client connects to the production backend automatically (it only uses `local
    - **Environment Variable**: `PORT = 10000`
 4. Deploy! Your WebSocket server and static client will run seamlessly on Render.
 
-### Deploy to Railway
-1. Click **New Project** -> **Deploy from GitHub repo** on [Railway](https://railway.app).
-2. Railway detects Node.js automatically. Set:
-   - Build Command: `npm run install:all && npm run build`
-   - Start Command: `npm start`
-3. Generate a public domain and play!
+
 
 ---
 
